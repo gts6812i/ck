@@ -7,10 +7,10 @@ let fs = require('fs')
 
 var id=0
 var all;
-var reselect;
+var str="正在查询";
 
 
-// 创建一个web服务器
+
 const server = http.createServer((req, res) => {
   // /login?username=why&password=123
   const { pathname, query } = url.parse(req.url);
@@ -24,13 +24,36 @@ const server = http.createServer((req, res) => {
   
   
   //   const { pathname, query } = url.parse(req.url);
+  
+  
+  
+
+  if (pathname === '/') {
+      read('index.html',res)
+      
+  }
+  
+  if (pathname === '/update.html') {
+      read('update.html',res)
+  }
+  
+  if (pathname === '/delete.html') {
+      read('delete.html',res)
+  }
+  
+  if (pathname === '/select.html') {
+  read('select.html',res)
+      
+  }
+  
+    
   if (pathname === '/add') {
   id++;
-    console.log(query);
+    console.log(query,'add');
     const { name, num } = qs.parse(query);
-    
+   // update(name,num);
     add(id,name,num);
-    select("*");
+   // select("*");
     
     console.log(name, num);
     //res.write("<script>alert('ok')</script>")
@@ -38,132 +61,114 @@ const server = http.createServer((req, res) => {
     res.end();
   }
   
-  if (pathname === '/') {
   
-  fs.readFile("./index.html", function (err, data) {
-      if (err) {
-        res.setHeader('Content-Type', 'text/plain;charset=utf-8')
-        res.end('文件读取失败 稍后重试')
-      } else {
-        //图片不需要指定编码
-        // res.setHeader('Content-Type', 'text/html; charset=UTF-8')
-        res.write(data);
-        res.end()
-      }
-});
-
-  if (pathname === '/select') {
   
-    console.log(query);
+  
+  if (pathname === '/del') {
     const { name, num } = qs.parse(query);
     
-  //  add(id,name,num);
-    select(0);
-    
+    del(num)
+    //select(0);
     console.log(name, num);
-   // res.write(reselect);
-     //res.writeHead(301, {'Location': '/'});
+     res.writeHead(301, {'Location': '/'});
     res.end();
   }
   
   
-
+  if (pathname === '/select') {
+  
     console.log(query);
- //   const { name, num } = qs.parse(query);
-  //  console.log(name, num);
+    const { name, num } = qs.parse(query);
+    select(0);
     
+    console.log(name, num);
+    res.write(str);
+     //res.writeHead(301, {'Location': '/'});
+    res.end();
+  }
+  
+  if (pathname === '/update') {
+  id++;
     
-    //res.end("1231231231~");
+    const { name, num } = qs.parse(query);
+    update(name,num);
+   // add(id,name,num);
+    select("*");
+    
+    console.log(name, num)
+     res.writeHead(301, {'Location': '/'});
+    res.end();
   }
   
   
-  
-  
-  
-  
-  
-  
-  
 });
-// 启动服务器,并且制定端口号和主机
+
+
+
+
 server.listen(8888, '0.0.0.0', () => {
   console.log("服务器启动成功~");
 });
 
-
-/*
-  var db = new sqlite3.Database('/tmp/1.db',function() {
-   db.run("create table test(name varchar(15))",function(){
-      db.run("insert into test values('hello,world')",function(){
-      db.all("select * from test",function(err,res){
-        if(!err)
-            console.log(JSON.stringify(res));
-         else
-          console.log(err);
-      });
-   })
-  });
-});
-*/
-
 var db = new sqlite3.Database('s.db')
 
 
-
-
-
-
-function add(id, name, age){
+function add(id, name, num){
     //var a = arguments[0] ? arguments[0] : 1
-   var insert=`insert into s values(${id},'${name}',${age})`;
+   var insert=`insert into a values(${id},'${name}',${num})`;
 	db.run(insert)
 	//console.log(insert);
 
 }
-
+//add(1,'kk',19)
 
 
 function select(tiaojian){
 
-console.log("select ")
-
-
-db.all("select * from s",function(err,res){
-//reselect=res
+console.log("select1")
+db.all("select * from a",function(err,res){
+str=res
     console.log(res)
-    
 })
+
 }
 
-function update(name,age){
-
+function update(name,num){
 
 console.log("update")
-  var sql=`update s set name=${name} where age=${age})`;
+//var insert=`insert into a values(${id},'${name}',${num})`;
+	//db.run(insert)
+/*
+var ins=`insert into a values(${id},'${name}',${num})`;
+  //var sql=`update a set name='${name}' where num=${num}`;
 
-db.run(sql)
+db.run(ins)
+*/
 }
 
-function delete(age){
+function del(num){
 
 console.log("delete")
-  var sql=`delete from s where age=${age})`;
+  var sql=`delete from a where num=${num}`;
+  console.log(sql)
 
 db.run(sql)
+
 }
 
-/*
-select * from 学生信息;
-
-insert into 学生信息 values(1,'小李','男',80);
-update 学生信息 set 成绩 = 100 where 姓名 = '小李';
-delete from 学生信息 where 学号 = 3;
-*/
-
-
-//add(4,'joke',25)
 	
-
+function read(fname,res){
+    fs.readFile("./"+fname, function (err, data) {
+      if (err) {
+        res.setHeader('Content-Type', 'text/plain;charset=utf-8')
+        res.end('文件读取失败 稍后重试')
+      } else {
+        select(0)
+        res.write(data);
+        res.end()
+      }
+});
+}
 
 
 
